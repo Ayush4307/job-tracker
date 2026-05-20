@@ -10,6 +10,13 @@ type Application = {
   notes: string
 }
 
+const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
+  Applied:   { bg: 'bg-blue-500/10',   text: 'text-blue-400',   dot: 'bg-blue-400' },
+  Interview: { bg: 'bg-amber-500/10',  text: 'text-amber-400',  dot: 'bg-amber-400' },
+  Offer:     { bg: 'bg-emerald-500/10',text: 'text-emerald-400',dot: 'bg-emerald-400' },
+  Rejected:  { bg: 'bg-red-500/10',    text: 'text-red-400',    dot: 'bg-red-400' },
+}
+
 export default function Dashboard() {
   const [applications, setApplications] = useState<Application[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,6 +44,7 @@ export default function Dashboard() {
   }
 
   const handleSave = async () => {
+    if (!company || !role || !dateApplied) return
     const { data: { user } } = await supabase.auth.getUser()
     if (editingId) {
       await supabase.from('applications').update({ company, role, status, date_applied: dateApplied, notes }).eq('id', editingId)
@@ -59,71 +67,127 @@ export default function Dashboard() {
   }
 
   const handleDelete = async (id: string) => {
+    if (!window.confirm('Delete this application?')) return
     await supabase.from('applications').delete().eq('id', id)
     fetchApplications()
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-  }
-
-  const statusColor: Record<string, string> = {
-    Applied: 'bg-blue-500',
-    Interview: 'bg-yellow-500',
-    Offer: 'bg-green-500',
-    Rejected: 'bg-red-500',
-  }
+  const handleLogout = async () => await supabase.auth.signOut()
 
   const filtered = applications
     .filter(a => filter === 'All' || a.status === filter)
-    .filter(a => a.company.toLowerCase().includes(search.toLowerCase()) || a.role.toLowerCase().includes(search.toLowerCase()))
+    .filter(a =>
+      a.company.toLowerCase().includes(search.toLowerCase()) ||
+      a.role.toLowerCase().includes(search.toLowerCase())
+    )
 
-  const total = applications.length
-  const interviews = applications.filter(a => a.status === 'Interview').length
-  const offers = applications.filter(a => a.status === 'Offer').length
-  const rejected = applications.filter(a => a.status === 'Rejected').length
+  const stats = [
+    { label: 'Total', count: applications.length, color: 'text-white' },
+    { label: 'Applied', count: applications.filter(a => a.status === 'Applied').length, color: 'text-blue-400' },
+    { label: 'Interview', count: applications.filter(a => a.status === 'Interview').length, color: 'text-amber-400' },
+    { label: 'Offers', count: applications.filter(a => a.status === 'Offer').length, color: 'text-emerald-400' },
+    { label: 'Rejected', count: applications.filter(a => a.status === 'Rejected').length, color: 'text-red-400' },
+  ]
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Job Tracker</h1>
-          <button onClick={handleLogout} className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg text-sm">Logout</button>
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* Top Nav */}
+      <nav className="border-b border-white/8 px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 bg-white rounded-md flex items-center justify-center">
+            <span className="text-black text-xs font-bold">JT</span>
+          </div>
+          <span className="font-semibold text-sm">Job Tracker</span>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="text-xs text-zinc-400 hover:text-white transition-colors px-3 py-1.5 rounded-md hover:bg-white/5"
+        >
+          Sign out
+        </button>
+      </nav>
+
+      <div className="max-w-4xl mx-auto px-6 py-10">
+        {/* Header */}
+        <div className="mb-10">
+          <h1 className="text-2xl font-semibold tracking-tight">Applications</h1>
+          <p className="text-zinc-500 text-sm mt-1">Track every job you apply to</p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {[['Total', total, 'bg-indigo-600'], ['Interviews', interviews, 'bg-yellow-600'], ['Offers', offers, 'bg-green-600'], ['Rejected', rejected, 'bg-red-600']].map(([label, count, color]) => (
-            <div key={label} className={`${color} rounded-xl p-4 text-center`}>
-              <p className="text-3xl font-bold">{count}</p>
-              <p className="text-sm mt-1">{label}</p>
+        {/* Stats Row */}
+        <div className="grid grid-cols-5 gap-3 mb-10">
+          {stats.map(s => (
+            <div key={s.label} className="bg-white/[0.03] border border-white/8 rounded-xl p-4">
+              <p className={`text-2xl font-semibold ${s.color}`}>{s.count}</p>
+              <p className="text-zinc-500 text-xs mt-1">{s.label}</p>
             </div>
           ))}
         </div>
 
         {/* Add Button */}
-        <button onClick={() => { resetForm(); setShowForm(!showForm) }} className="bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-lg mb-6 font-semibold">
-          {showForm && !editingId ? 'Cancel' : '+ Add Application'}
-        </button>
+        {!showForm && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="mb-6 flex items-center gap-2 bg-white text-black text-sm font-medium px-4 py-2 rounded-lg hover:bg-zinc-200 transition-colors"
+          >
+            <span className="text-lg leading-none">+</span> Add Application
+          </button>
+        )}
 
         {/* Form */}
         {showForm && (
-          <div className="bg-gray-900 p-6 rounded-xl mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input className="bg-gray-800 p-3 rounded-lg outline-none" placeholder="Company" value={company} onChange={e => setCompany(e.target.value)} />
-            <input className="bg-gray-800 p-3 rounded-lg outline-none" placeholder="Role" value={role} onChange={e => setRole(e.target.value)} />
-            <select className="bg-gray-800 p-3 rounded-lg outline-none" value={status} onChange={e => setStatus(e.target.value)}>
-              <option>Applied</option>
-              <option>Interview</option>
-              <option>Offer</option>
-              <option>Rejected</option>
-            </select>
-            <input className="bg-gray-800 p-3 rounded-lg outline-none" type="date" value={dateApplied} onChange={e => setDateApplied(e.target.value)} />
-            <textarea className="bg-gray-800 p-3 rounded-lg outline-none md:col-span-2" placeholder="Notes (optional)" value={notes} onChange={e => setNotes(e.target.value)} />
-            <div className="md:col-span-2 flex gap-3">
-              <button onClick={handleSave} className="flex-1 bg-indigo-600 hover:bg-indigo-700 py-3 rounded-lg font-semibold">
-                {editingId ? 'Update' : 'Save'}
-              </button>
-              <button onClick={resetForm} className="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg">Cancel</button>
+          <div className="bg-white/[0.03] border border-white/8 rounded-xl p-6 mb-6">
+            <h2 className="text-sm font-medium mb-4 text-zinc-300">{editingId ? 'Edit Application' : 'New Application'}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input
+                className="bg-white/5 border border-white/8 p-3 rounded-lg outline-none text-sm placeholder:text-zinc-600 focus:border-white/20 transition-colors"
+                placeholder="Company"
+                value={company}
+                onChange={e => setCompany(e.target.value)}
+              />
+              <input
+                className="bg-white/5 border border-white/8 p-3 rounded-lg outline-none text-sm placeholder:text-zinc-600 focus:border-white/20 transition-colors"
+                placeholder="Role"
+                value={role}
+                onChange={e => setRole(e.target.value)}
+              />
+              <select
+                className="bg-white/5 border border-white/8 p-3 rounded-lg outline-none text-sm text-zinc-300 focus:border-white/20 transition-colors"
+                value={status}
+                onChange={e => setStatus(e.target.value)}
+              >
+                <option value="Applied">Applied</option>
+                <option value="Interview">Interview</option>
+                <option value="Offer">Offer</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+              <input
+                className="bg-white/5 border border-white/8 p-3 rounded-lg outline-none text-sm text-zinc-300 focus:border-white/20 transition-colors"
+                type="date"
+                value={dateApplied}
+                onChange={e => setDateApplied(e.target.value)}
+              />
+              <textarea
+                className="bg-white/5 border border-white/8 p-3 rounded-lg outline-none text-sm placeholder:text-zinc-600 focus:border-white/20 transition-colors md:col-span-2 resize-none"
+                placeholder="Notes (optional)"
+                rows={3}
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+              />
+              <div className="md:col-span-2 flex gap-2">
+                <button
+                  onClick={handleSave}
+                  className="bg-white text-black text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-zinc-200 transition-colors"
+                >
+                  {editingId ? 'Update' : 'Save'}
+                </button>
+                <button
+                  onClick={resetForm}
+                  className="text-zinc-400 hover:text-white text-sm px-5 py-2.5 rounded-lg hover:bg-white/5 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -131,17 +195,21 @@ export default function Dashboard() {
         {/* Search + Filter */}
         <div className="flex flex-col md:flex-row gap-3 mb-6">
           <input
-            className="bg-gray-800 p-3 rounded-lg outline-none flex-1"
-            placeholder="Search by company or role..."
+            className="bg-white/[0.03] border border-white/8 p-3 rounded-lg outline-none text-sm placeholder:text-zinc-600 flex-1 focus:border-white/20 transition-colors"
+            placeholder="Search company or role..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             {['All', 'Applied', 'Interview', 'Offer', 'Rejected'].map(s => (
               <button
                 key={s}
                 onClick={() => setFilter(s)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium ${filter === s ? 'bg-indigo-600' : 'bg-gray-800 hover:bg-gray-700'}`}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  filter === s
+                    ? 'bg-white text-black'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                }`}
               >
                 {s}
               </button>
@@ -150,25 +218,53 @@ export default function Dashboard() {
         </div>
 
         {/* Applications List */}
-        {loading ? <p className="text-gray-400">Loading...</p> : filtered.length === 0 ? (
-          <p className="text-gray-400 text-center mt-10">No applications found.</p>
+        {loading ? (
+          <p className="text-zinc-600 text-sm">Loading...</p>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-zinc-600 text-sm">No applications found.</p>
+            <p className="text-zinc-700 text-xs mt-1">Try adjusting your search or filter.</p>
+          </div>
         ) : (
-          <div className="space-y-4">
-            {filtered.map(app => (
-              <div key={app.id} className="bg-gray-900 p-5 rounded-xl flex justify-between items-start">
-                <div>
-                  <h2 className="text-lg font-semibold">{app.company}</h2>
-                  <p className="text-gray-400 text-sm">{app.role}</p>
-                  <p className="text-gray-500 text-xs mt-1">{app.date_applied}</p>
-                  {app.notes && <p className="text-gray-400 text-sm mt-2">{app.notes}</p>}
+          <div className="space-y-2">
+            {filtered.map(app => {
+              const s = STATUS_COLORS[app.status] ?? STATUS_COLORS['Applied']
+              return (
+                <div
+                  key={app.id}
+                  className="bg-white/[0.03] border border-white/8 rounded-xl px-5 py-4 flex justify-between items-center hover:bg-white/[0.05] transition-colors group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center text-xs font-semibold text-zinc-400">
+                      {app.company.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{app.company}</p>
+                      <p className="text-zinc-500 text-xs mt-0.5">{app.role} · {app.date_applied}</p>
+                      {app.notes && <p className="text-zinc-600 text-xs mt-1">{app.notes}</p>}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${s.bg} ${s.text}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`}></span>
+                      {app.status}
+                    </span>
+                    <button
+                      onClick={() => handleEdit(app)}
+                      className="text-zinc-600 hover:text-zinc-300 text-xs opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(app.id)}
+                      className="text-zinc-600 hover:text-red-400 text-xs opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span className={`${statusColor[app.status]} text-xs px-3 py-1 rounded-full`}>{app.status}</span>
-                  <button onClick={() => handleEdit(app)} className="text-indigo-400 text-xs hover:text-indigo-300">Edit</button>
-                  <button onClick={() => handleDelete(app.id)} className="text-red-400 text-xs hover:text-red-300">Delete</button>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

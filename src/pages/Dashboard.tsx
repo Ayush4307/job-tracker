@@ -36,7 +36,14 @@ export default function Dashboard() {
     setLoading(false)
   }
 
-  useEffect(() => { fetchApplications() }, [])
+  useEffect(() => {
+  const load = async () => {
+    const { data } = await supabase.from('applications').select('*').order('created_at', { ascending: false })
+    if (data) setApplications(data)
+    setLoading(false)
+  }
+  load()
+}, [])
 
   const resetForm = () => {
     setCompany(''); setRole(''); setStatus('Applied'); setDateApplied(''); setNotes('')

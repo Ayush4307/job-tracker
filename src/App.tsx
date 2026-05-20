@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { supabase } from './lib/supabase'
 import Login from './pages/Login'
-import Signup from './pages/signup'
+import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import type { Session } from '@supabase/supabase-js'
 

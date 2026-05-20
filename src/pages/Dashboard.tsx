@@ -124,7 +124,7 @@ export default function Dashboard() {
         {/* Stats Row */}
         <div className="grid grid-cols-5 gap-3 mb-10">
           {stats.map(s => (
-            <div key={s.label} className="bg-white/[0.03] border border-white/8 rounded-xl p-4">
+            <div key={s.label} className="bg-white/3 border border-white/8 rounded-xl p-4">
               <p className={`text-2xl font-semibold ${s.color}`}>{s.count}</p>
               <p className="text-zinc-500 text-xs mt-1">{s.label}</p>
             </div>
@@ -143,7 +143,7 @@ export default function Dashboard() {
 
         {/* Form */}
         {showForm && (
-          <div className="bg-white/[0.03] border border-white/8 rounded-xl p-6 mb-6">
+          <div className="bg-white/3 border border-white/8 rounded-xl p-6 mb-6">
             <h2 className="text-sm font-medium mb-4 text-zinc-300">{editingId ? 'Edit Application' : 'New Application'}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <input
@@ -202,7 +202,7 @@ export default function Dashboard() {
         {/* Search + Filter */}
         <div className="flex flex-col md:flex-row gap-3 mb-6">
           <input
-            className="bg-white/[0.03] border border-white/8 p-3 rounded-lg outline-none text-sm placeholder:text-zinc-600 flex-1 focus:border-white/20 transition-colors"
+            className="bg-white/3 border border-white/8 p-3 rounded-lg outline-none text-sm placeholder:text-zinc-600 flex-1 focus:border-white/20 transition-colors"
             placeholder="Search company or role..."
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -239,7 +239,7 @@ export default function Dashboard() {
               return (
                 <div
                   key={app.id}
-                  className="bg-white/[0.03] border border-white/8 rounded-xl px-5 py-4 flex justify-between items-center hover:bg-white/[0.05] transition-colors group"
+                  className="bg-white/3 border border-white/8 rounded-xl px-5 py-4 flex justify-between items-center hover:bg-white/5 transition-colors group"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center text-xs font-semibold text-zinc-400">

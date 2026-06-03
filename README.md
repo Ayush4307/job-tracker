@@ -37,7 +37,11 @@ cd job-tracker
 npm install
 ```
 
-3. Create a `.env` file in the root:
+3. Create a `.env` file in the root with your Supabase credentials:
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
 4. Run the dev server
 ```bash
@@ -72,5 +76,5 @@ for select using (auth.uid() = user_id);
 
 **Ayush Singh Pawar**
 - GitHub: [@Ayush4307](https://github.com/Ayush4307)
-- LinkedIn: [Ayush Singh Pawar](https://linkedin.com/in/your-linkedin)
+- LinkedIn: [Ayush Singh Pawar](https://www.linkedin.com)
 

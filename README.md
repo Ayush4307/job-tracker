@@ -77,4 +77,3 @@ for select using (auth.uid() = user_id);
 **Ayush Singh Pawar**
 - GitHub: [@Ayush4307](https://github.com/Ayush4307)
 - LinkedIn: [Ayush Singh Pawar](https://www.linkedin.com)
-

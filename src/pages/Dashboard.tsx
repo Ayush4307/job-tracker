@@ -261,7 +261,7 @@ export default function Dashboard() {
             <option value="company-asc">Company (A-Z)</option>
             <option value="company-desc">Company (Z-A)</option>
           </select>
-          <div className="flex gap-1.5">
+          <div className="flex flex-wrap gap-1.5 items-center">
             {['All', 'Applied', 'Interview', 'Offer', 'Rejected'].map(s => (
               <button
                 key={s}
@@ -275,6 +275,14 @@ export default function Dashboard() {
                 {s}
               </button>
             ))}
+            {(search !== '' || filter !== 'All' || sortBy !== 'date-desc') && (
+              <button
+                onClick={() => { setSearch(''); setFilter('All'); setSortBy('date-desc'); }}
+                className="ml-2 px-3 py-2 rounded-lg text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-400/10 transition-colors"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         </div>
 

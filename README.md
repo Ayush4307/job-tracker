@@ -4,13 +4,15 @@ A full-stack job application tracking app built with React, TypeScript, Supabase
 
 🔗 **Live Demo:** [job-tracker-ayush.vercel.app](https://job-tracker-ayush.vercel.app)
 
-## Features
+## 🌟 Features
 
-- 🔐 Email/password authentication (Supabase Auth)
-- ➕ Add, edit, and delete job applications
-- 📊 Dashboard with stats (Total, Applied, Interview, Offers, Rejected)
-- 🔍 Search by company or role
-- 🏷️ Filter by application status
+- **Authentication:** Secure user signup and login using Supabase Auth.
+- **Dashboard Analytics:** Track your success rate and interview rate at a glance.
+- **Advanced Sorting:** Sort applications by Date (Newest/Oldest) or Company Name (A-Z).
+- **Export to CSV:** Download all of your job applications with one click.
+- **CRUD Operations:** Add, edit, and delete job applications with status tracking.
+- **Search & Filter:** Find specific companies or filter by application status easily.
+- **Clear Filters Utility:** One-click clear for search and filter states.
 - 🔒 Row Level Security — users only see their own data
 - 📱 Fully responsive design
 

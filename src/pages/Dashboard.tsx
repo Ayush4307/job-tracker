@@ -88,12 +88,20 @@ export default function Dashboard() {
       a.role.toLowerCase().includes(search.toLowerCase())
     )
 
+  const total = applications.length
+  const offers = applications.filter(a => a.status === 'Offer').length
+  const interviews = applications.filter(a => a.status === 'Interview').length
+  
+  const successRate = total > 0 ? Math.round((offers / total) * 100) + '%' : '0%'
+  const interviewRate = total > 0 ? Math.round((interviews / total) * 100) + '%' : '0%'
+
   const stats = [
-    { label: 'Total', count: applications.length, color: 'text-white' },
+    { label: 'Total', count: total, color: 'text-white' },
     { label: 'Applied', count: applications.filter(a => a.status === 'Applied').length, color: 'text-blue-400' },
-    { label: 'Interview', count: applications.filter(a => a.status === 'Interview').length, color: 'text-amber-400' },
-    { label: 'Offers', count: applications.filter(a => a.status === 'Offer').length, color: 'text-emerald-400' },
-    { label: 'Rejected', count: applications.filter(a => a.status === 'Rejected').length, color: 'text-red-400' },
+    { label: 'Interview', count: interviews, color: 'text-amber-400' },
+    { label: 'Offers', count: offers, color: 'text-emerald-400' },
+    { label: 'Success Rate', count: successRate, color: 'text-emerald-400' },
+    { label: 'Interview Rate', count: interviewRate, color: 'text-amber-400' },
   ]
 
   return (
@@ -122,7 +130,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-5 gap-3 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-10">
           {stats.map(s => (
             <div key={s.label} className="bg-white/3 border border-white/8 rounded-xl p-4">
               <p className={`text-2xl font-semibold ${s.color}`}>{s.count}</p>

@@ -81,6 +81,26 @@ export default function Dashboard() {
 
   const handleLogout = async () => await supabase.auth.signOut()
 
+  const handleExportCSV = () => {
+    if (applications.length === 0) return
+    const headers = ['Company', 'Role', 'Status', 'Date Applied', 'Notes']
+    const csvContent = [
+      headers.join(','),
+      ...applications.map(a => 
+        [a.company, a.role, a.status, a.date_applied, `"${(a.notes || '').replace(/"/g, '""')}"`].join(',')
+      )
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'job_applications.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   const filtered = applications
     .filter(a => filter === 'All' || a.status === filter)
     .filter(a =>
@@ -139,14 +159,22 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Add Button */}
+        {/* Add Button & Export Button */}
         {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="mb-6 flex items-center gap-2 bg-white text-black text-sm font-medium px-4 py-2 rounded-lg hover:bg-zinc-200 transition-colors"
-          >
-            <span className="text-lg leading-none">+</span> Add Application
-          </button>
+          <div className="flex gap-3 mb-6">
+            <button
+              onClick={() => setShowForm(true)}
+              className="flex items-center gap-2 bg-white text-black text-sm font-medium px-4 py-2 rounded-lg hover:bg-zinc-200 transition-colors"
+            >
+              <span className="text-lg leading-none">+</span> Add Application
+            </button>
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center gap-2 bg-white/10 text-white border border-white/10 text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/20 transition-colors"
+            >
+              Export CSV
+            </button>
+          </div>
         )}
 
         {/* Form */}

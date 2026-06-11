@@ -29,6 +29,7 @@ export default function Dashboard() {
   const [notes, setNotes] = useState('')
   const [filter, setFilter] = useState('All')
   const [search, setSearch] = useState('')
+  const [sortBy, setSortBy] = useState('date-desc')
 
   const fetchApplications = async () => {
     const { data } = await supabase.from('applications').select('*').order('created_at', { ascending: false })
@@ -107,6 +108,13 @@ export default function Dashboard() {
       a.company.toLowerCase().includes(search.toLowerCase()) ||
       a.role.toLowerCase().includes(search.toLowerCase())
     )
+    .sort((a, b) => {
+      if (sortBy === 'date-desc') return new Date(b.date_applied).getTime() - new Date(a.date_applied).getTime()
+      if (sortBy === 'date-asc') return new Date(a.date_applied).getTime() - new Date(b.date_applied).getTime()
+      if (sortBy === 'company-asc') return a.company.localeCompare(b.company)
+      if (sortBy === 'company-desc') return b.company.localeCompare(a.company)
+      return 0
+    })
 
   const total = applications.length
   const offers = applications.filter(a => a.status === 'Offer').length
@@ -243,6 +251,16 @@ export default function Dashboard() {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
+          <select
+            className="bg-white/3 border border-white/8 p-3 rounded-lg outline-none text-sm text-zinc-300 focus:border-white/20 transition-colors"
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+          >
+            <option value="date-desc">Newest First</option>
+            <option value="date-asc">Oldest First</option>
+            <option value="company-asc">Company (A-Z)</option>
+            <option value="company-desc">Company (Z-A)</option>
+          </select>
           <div className="flex gap-1.5">
             {['All', 'Applied', 'Interview', 'Offer', 'Rejected'].map(s => (
               <button

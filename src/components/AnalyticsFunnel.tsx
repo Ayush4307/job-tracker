@@ -1,4 +1,4 @@
-import { Application } from '../types'
+import type { Application } from '../types'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 export function AnalyticsFunnel({ applications }: { applications: Application[] }) {

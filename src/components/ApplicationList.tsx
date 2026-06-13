@@ -1,4 +1,5 @@
-import { Application, STATUS_COLORS } from '../types'
+import type { Application } from '../types'
+import { STATUS_COLORS } from '../types'
 import { Clock } from 'lucide-react'
 
 type ApplicationListProps = {

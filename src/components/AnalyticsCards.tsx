@@ -1,4 +1,4 @@
-import { Application } from '../types'
+import type { Application } from '../types'
 
 export function AnalyticsCards({ applications }: { applications: Application[] }) {
   const total = applications.length

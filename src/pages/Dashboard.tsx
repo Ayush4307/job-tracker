@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { Application } from '../types'
+import type { Application } from '../types'
 import { AnalyticsCards } from '../components/AnalyticsCards'
 import { AnalyticsFunnel } from '../components/AnalyticsFunnel'
 import { ApplicationForm } from '../components/ApplicationForm'
@@ -32,6 +32,7 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line
     fetchApplications()
   }, [])
 

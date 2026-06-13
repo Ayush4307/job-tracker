@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { Application } from '../types'
 import { AnalyticsCards } from '../components/AnalyticsCards'
+import { AnalyticsFunnel } from '../components/AnalyticsFunnel'
 import { ApplicationForm } from '../components/ApplicationForm'
 import { ApplicationList } from '../components/ApplicationList'
 
@@ -131,6 +132,7 @@ export default function Dashboard() {
         </div>
 
         <AnalyticsCards applications={applications} />
+        <AnalyticsFunnel applications={applications} />
 
         {/* Add Button & Export Button */}
         {!showForm && (
